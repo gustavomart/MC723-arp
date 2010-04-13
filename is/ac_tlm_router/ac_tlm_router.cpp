@@ -42,9 +42,10 @@
 using user::ac_tlm_router;
 
 /// Constructor
-ac_tlm_router::ac_tlm_router( sc_module_name module_name , int k ) :
+ac_tlm_router::ac_tlm_router( sc_module_name module_name ) :
   sc_module( module_name ),
-  target_export("iport")
+  target_export("iport"),
+  R_port_mem("R_port_mem", 5242880U)
 {
     /// Binds target_export to the router
     target_export( *this );
@@ -59,22 +60,24 @@ ac_tlm_router::~ac_tlm_router() {
   * @param request is the request received
   * @returns A TLM response packet with SUCCESS
 */
-ac_tlm_rsp_status ac_tlm_router::route( ac_tlm_req &request )
+ac_tlm_rsp ac_tlm_router::route( const ac_tlm_req &request )
 {
   /*if (a & MEM_BASE)
   {*/
     // Route to mem
-    return R_port_mem.transport( request.addr, request.data );
+    return R_port_mem->transport( request );
   /*}
   else if (a & LOCK_BASE)
   {
     // Route to Read&Inc register
-    return R_port_lock.write( request.addr & MASK_BASE, request.data );
+    request.addr &= MASK_BASE;
+    return R_port_lock.write( request );
   }
   else if (a & FPU_BASE)
   { 
     // Route to FPU
-    return R_port_fpu.write( request.addr & MASK_BASE, request.data );
+    request.addr &= MASK_BASE;
+    return R_port_fpu.write( request );
   }
   else
   {

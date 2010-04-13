@@ -29,6 +29,7 @@
 #include <systemc>
 // ArchC includes
 #include "ac_tlm_protocol.H"
+#include "ac_tlm_port.H"
 
 #define MEM_BASE 0x500000
 #define LOCK_BASE 0x600000
@@ -51,18 +52,17 @@ namespace user
 /// A TLM router
 class ac_tlm_router :
   public sc_module,
-  public ac_tlm_transport_if // Using ArchC TLM protocol
+  public ac_tlm_transport_if
 {
 public:
   /// Exposed port with ArchC interface
   sc_export< ac_tlm_transport_if > target_export;
-  /// Router write
-  ac_tlm_rsp_status route( const uint32_t & , uint32_t & );
 
-  //!Storage Devices.
   ac_tlm_port R_port_mem;
   //ac_tlm_port R_port_lock;
   //ac_tlm_port R_port_fpu;
+
+  ac_tlm_rsp route( const ac_tlm_req &request );
 
   /**
    * Implementation of TLM transport method that
@@ -80,9 +80,7 @@ public:
     cout << response.data << endl;
     #endif
     
-    response.status = route( request );
-    
-    return response;
+    return route( request );
   }
 
 
