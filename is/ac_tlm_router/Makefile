@@ -1,33 +1,25 @@
 # ####################################################
-# Hello World Platform
+# TLM router with TLM interface (ArchC 2x compliant)
 # ####################################################
 
-include defs.arp
+TARGET=ac_tlm_router
+INC_DIR := -I. -I$(ARCHC_PATH)/include/archc -I$(SYSTEMC)/include -I$(TLM_PATH) 
 
-TARGET=helloworld_mips.01
-EXE = $(TARGET).x
-
-SRCS := main.cpp
+SRCS := ac_tlm_router.cpp
 OBJS := $(SRCS:.cpp=.o)
 
 #------------------------------------------------------
 .SILENT:
 #------------------------------------------------------
-.SUFFIXES: .cc .cpp .o .x
+.SUFFIXES: .cc .cpp .o
 #------------------------------------------------------
-$(EXE): $(OBJS)
-	$(CC) $(CFLAGS) $(INC_DIR) $(LIB_DIR) -o $(EXE) $(OBJS) $(LIBS)
+lib: all
+	ar r lib$(TARGET).a $(OBJS)
 #------------------------------------------------------
-main.o:
-	$(CC) $(CFLAGS) $(INC_DIR) -c main.cpp
-#------------------------------------------------------
-all: $(EXE)
-#------------------------------------------------------
-run: all
-	./$(EXE) --load=hello_world.x
+all: $(OBJS) ac_tlm_router.h
 #------------------------------------------------------
 clean:
-	rm -f $(OBJS) $(EXE) *~ *.o
+	rm -f $(OBJS) *~ *.o *.a
 #------------------------------------------------------
 distclean: clean
 #------------------------------------------------------
@@ -36,8 +28,3 @@ distclean: clean
 #------------------------------------------------------
 .cc.o:
 	$(CC) $(CFLAGS) $(INC_DIR) -c $<
-
-
-
-
-	
