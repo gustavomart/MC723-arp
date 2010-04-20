@@ -1,38 +1,30 @@
 # ####################################################
-# Hello World
+# TLM lock with TLM interface (ArchC 2x compliant)
 # ####################################################
 
-CC = mips-elf-gcc
-CFLAGS = -msoft-float -specs=archc
-LDFLAGS = -lm
+TARGET=ac_tlm_lock
+INC_DIR := -I. -I$(ARCHC_PATH)/include/archc -I$(SYSTEMC)/include -I$(TLM_PATH) 
 
-TARGET = math_test.x
-INC_DIR := -I.
-
-SRCS := math_test.c
-OBJS := $(SRCS:.c=.o)
+SRCS := ac_tlm_lock.cpp
+OBJS := $(SRCS:.cpp=.o)
 
 #------------------------------------------------------
 .SILENT:
-
 #------------------------------------------------------
-.SUFFIXES: .o .c .h
-
+.SUFFIXES: .cc .cpp .o
 #------------------------------------------------------
-all: $(OBJS)
-	$(CC) $(OBJS) $(CFLAGS) -o $(TARGET) $(LDFLAGS)
+lib: all
+	ar r lib$(TARGET).a $(OBJS)
+#------------------------------------------------------
+all: $(OBJS) ac_tlm_lock.h
 #------------------------------------------------------
 clean:
-	rm -f *.o *~ $(TARGET)
+	rm -f $(OBJS) *~ *.o *.a
 #------------------------------------------------------
 distclean: clean
 #------------------------------------------------------
-bin:
-	tar xzf math_test-bin.tgz
+.cpp.o:
+	$(CC) $(CFLAGS) $(INC_DIR) -c $<
 #------------------------------------------------------
-.c.o:
-	$(CC) -c $(CFLAGS) $(INC_DIR) -c $<
-	
-
-
-
+.cc.o:
+	$(CC) $(CFLAGS) $(INC_DIR) -c $<

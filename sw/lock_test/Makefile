@@ -3,13 +3,13 @@
 # ####################################################
 
 CC = mips-elf-gcc
-CFLAGS = -msoft-float -specs=archc
+CFLAGS = -O3 -specs=archc
 LDFLAGS = -lm
 
-TARGET = math_test.x
+TARGET = lock_test.x
 INC_DIR := -I.
 
-SRCS := math_test.c
+SRCS := lock_test.c
 OBJS := $(SRCS:.c=.o)
 
 #------------------------------------------------------
@@ -28,7 +28,7 @@ clean:
 distclean: clean
 #------------------------------------------------------
 bin:
-	tar xzf math_test-bin.tgz
+	tar xzf lock_test-bin.tgz
 #------------------------------------------------------
 .c.o:
 	$(CC) -c $(CFLAGS) $(INC_DIR) -c $<

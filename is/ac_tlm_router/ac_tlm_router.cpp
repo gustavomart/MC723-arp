@@ -1,18 +1,8 @@
 /**
- * @file      ac_tlm_mem.cpp
- * @author    Bruno de Carvalho Albertini
+ * @file      ac_tlm_router.cpp
+ * @author    Gustavo Solaira
  *
- * @author    The ArchC Team
- *            http://www.archc.org/
- *
- *            Computer Systems Laboratory (LSC)
- *            IC-UNICAMP
- *            http://www.lsc.ic.unicamp.br/
- *
- * @version   0.1
- * @date      Sun, 02 Apr 2006 08:07:46 -0200
- *
- * @brief     Implements a ac_tlm memory.
+ * @brief     Implements a ac_tlm router.
  *
  * @attention Copyright (C) 2002-2005 --- The ArchC Team
  *
@@ -38,14 +28,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Namespace to isolate memory from ArchC
+/// Namespace to isolate lock from ArchC
 using user::ac_tlm_router;
 
 /// Constructor
 ac_tlm_router::ac_tlm_router( sc_module_name module_name ) :
   sc_module( module_name ),
   target_export("iport"),
-  R_port_mem("R_port_mem", 5242880U)
+  R_port_mem("R_port_mem", 5242880U),
+  R_port_lock("R_port_lock", 32U),
+  R_port_mdouble("R_port_mdouble", 172U)
 {
     /// Binds target_export to the router
     target_export( *this );
@@ -62,27 +54,25 @@ ac_tlm_router::~ac_tlm_router() {
 */
 ac_tlm_rsp ac_tlm_router::route( const ac_tlm_req &request )
 {
-  /*if (a & MEM_BASE)
-  {*/
+  if (request.addr < LOCK_BASE)
+  {
     // Route to mem
     return R_port_mem->transport( request );
-  /*}
-  else if (a & LOCK_BASE)
+  }
+  else if (request.addr < MDOUBLE_BASE)
   {
     // Route to Read&Inc register
-    request.addr &= MASK_BASE;
-    return R_port_lock.write( request );
+    ac_tlm_req req_aux = request;
+    req_aux.addr -= LOCK_BASE;
+    return R_port_lock->transport( request );
   }
-  else if (a & FPU_BASE)
+  else if (request.addr < MDOUBLE_TOP)
   { 
-    // Route to FPU
-    request.addr &= MASK_BASE;
-    return R_port_fpu.write( request );
+    // Route to MDOUBLE
+    ac_tlm_req req_aux = request;
+    req_aux.addr -= MDOUBLE_BASE;
+    return R_port_mdouble->transport( req_aux );
   }
-  else
-  {
-    return ERROR;
-  }*/
 }
 
 

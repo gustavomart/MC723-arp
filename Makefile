@@ -7,13 +7,13 @@
 PLATFORM := mc723_mips
 
 # Variable that points to SystemC installation path
-export SYSTEMC :=  /home/staff/rodolfo/mc723/systemc
+export SYSTEMC :=  /home/gustavomart/mc723/systemc
 
 # Variable that points to TLM installation path
-export TLM_PATH := /home/staff/rodolfo/mc723/tlm
+export TLM_PATH := /home/gustavomart/mc723/tlm
 
 # Variable that points to ArchC installation path
-export ARCHC_PATH = /home/staff/rodolfo/mc723/archc
+export ARCHC_PATH = /home/gustavomart/mc723/archc
 
 export PATH:=/l/archc/compilers/bin:$(PATH)
 

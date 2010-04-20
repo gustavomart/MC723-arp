@@ -1,18 +1,8 @@
 /**
- * @file      ac_tlm_mem.cpp
- * @author    Bruno de Carvalho Albertini
+ * @file      ac_tlm_lock.cpp
+ * @author    Gustavo Solaira
  *
- * @author    The ArchC Team
- *            http://www.archc.org/
- *
- *            Computer Systems Laboratory (LSC)
- *            IC-UNICAMP
- *            http://www.lsc.ic.unicamp.br/
- *
- * @version   0.1
- * @date      Sun, 02 Apr 2006 08:07:46 -0200
- *
- * @brief     Implements a ac_tlm memory.
+ * @brief     Implements a ac_tlm lock.
  *
  * @attention Copyright (C) 2002-2005 --- The ArchC Team
  *
@@ -34,30 +24,31 @@
 // SystemC includes
 // ArchC includes
 
-#include "ac_tlm_mem.h"
+#include "ac_tlm_lock.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Namespace to isolate memory from ArchC
-using user::ac_tlm_mem;
+/// Namespace to isolate lock from ArchC
+using user::ac_tlm_lock;
 
 /// Constructor
-ac_tlm_mem::ac_tlm_mem( sc_module_name module_name , int k ) :
+ac_tlm_lock::ac_tlm_lock( sc_module_name module_name , int n ) :
   sc_module( module_name ),
   target_export("iport")
 {
-    /// Binds target_export to the memory
+    /// Binds target_export to the lock
     target_export( *this );
 
-    /// Initialize memory vector
-    memory = new uint8_t[ k ];
-    for(k=k-1;k>0;k--) memory[k]=0;
+    /// Initialize lock vector
+    lock_mem = new uint32_t[ n ];
+    for(n=n-1;n>0;n--) lock_mem[n]=0;
+
 }
 
 /// Destructor
-ac_tlm_mem::~ac_tlm_mem() {
+ac_tlm_lock::~ac_tlm_lock() {
 
-  delete [] memory;
+  delete [] lock_mem;
 }
 
 /** Internal Write
@@ -66,9 +57,11 @@ ac_tlm_mem::~ac_tlm_mem() {
   * @param d id the data being write
   * @returns A TLM response packet with SUCCESS
 */
-ac_tlm_rsp_status ac_tlm_mem::writem( const uint32_t &a , const uint32_t &d )
+ac_tlm_rsp_status ac_tlm_lock::writel( const uint32_t &a , const uint32_t &d )
 {
-  *((uint32_t *) &memory[a]) = *((uint32_t *) &d);
+  // write value (decrement base memory)
+  //*((uint32_t *) &lock_mem[a-LOCK_BASE]) = *((uint32_t *) &d);
+  *((uint32_t *) &lock_mem[a]) = *((uint32_t *) &d);
   return SUCCESS;
 }
 
@@ -78,9 +71,14 @@ ac_tlm_rsp_status ac_tlm_mem::writem( const uint32_t &a , const uint32_t &d )
   * @param d id the data that will be read
   * @returns A TLM response packet with SUCCESS and a modified d
 */
-ac_tlm_rsp_status ac_tlm_mem::readm( const uint32_t &a , uint32_t &d )
+ac_tlm_rsp_status ac_tlm_lock::readl( const uint32_t &a , uint32_t &d )
 {
-  *((uint32_t *) &d) = *((uint32_t *) &memory[a]);
+  // return stored value (decrement base memory)
+  //*((uint32_t *) &d) = *((uint32_t *) &lock_mem[a-LOCK_BASE]);
+  *((uint32_t *) &d) = *((uint32_t *) &lock_mem[a]);
+  // changes value to one
+  //lock_mem[a-LOCK_BASE] = 1;
+  lock_mem[a] = 1;
 
   return SUCCESS;
 }
