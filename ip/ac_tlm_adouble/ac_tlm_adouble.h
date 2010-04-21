@@ -1,5 +1,5 @@
 /**
- * @file      ac_tlm_mdouble.h
+ * @file      ac_tlm_adouble.h
  * @author    Gustavo Solaira
  *
  *
@@ -22,8 +22,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef AC_TLM_MDOUBLE_H_
-#define AC_TLM_MDOUBLE_H_
+#ifndef AC_TLM_adouble_H_
+#define AC_TLM_adouble_H_
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -42,12 +42,12 @@ using tlm::tlm_transport_if;
 
 //#define DEBUG
 
-/// Namespace to isolate mdouble from ArchC
+/// Namespace to isolate adouble from ArchC
 namespace user
 {
 
 /// A TLM lock register
-class ac_tlm_mdouble :
+class ac_tlm_adouble :
   public sc_module,
   public ac_tlm_transport_if // Using ArchC TLM protocol
 {
@@ -100,12 +100,12 @@ public:
    * Default constructor.
    *
    */
-  ac_tlm_mdouble( sc_module_name module_name );
+  ac_tlm_adouble( sc_module_name module_name );
 
   /**
    * Default destructor.
    */
-  ~ac_tlm_mdouble();
+  ~ac_tlm_adouble();
 
 private:
   // two ints for each register, two for the result 
@@ -115,4 +115,4 @@ private:
 
 };
 
-#endif //AC_TLM_MDOUBLE_H_
+#endif //AC_TLM_adouble_H_

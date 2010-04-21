@@ -1,38 +1,53 @@
 #include <stdio.h>
 #include <math.h>
 
-#define REG1_1 0x600000
-#define REG1_2 0x600004
-#define REG2_1 0x600008
-#define REG2_2 0x60000C
+#define REGM1 0x600000
+#define REGM2 0x600008
 
-#define RES_1 0x600010
-#define RES_2 0x600014
+#define REGA1 0x700000
+#define REGA2 0x700008
 
+#define RESM 0x600010
+#define RESA 0x700010
+
+double mult(double a, double b)
+{
+  double *r1=(double*)REGM1, *r2=(double*)REGM2, *res=(double*)RESM;
+
+  *r1 = a;
+  *r2 = b;
+  
+  return *res;
+}
+
+double add(double a, double b)
+{
+  double *r1=(double*)REGA1, *r2=(double*)REGA2, *res=(double*)RESA;
+
+  *r1 = a;
+  *r2 = b;
+  
+  return *res;
+}
 
 int main(int argc, char *argv[]) {
   int i;
-  //double a, b, c;
 
-  //int *a = 0x400000;
-  double b = 8.0;
-  double c = 8.0;
-  double d;
-
-  int *r11=REG1_1, *r12=REG1_2, *r21=REG2_1, *r22=REG2_2;  
-  int *res1=RES_1, *res2=RES_2;
-
-  *r11 = *((int*)&b);
-  *r12 = *(((int*)&b)+1);
-
-  *r21 = *((int*)&b);
-  *r22 = *(((int*)&b)+1);
-    
-  *((int*)&d) = *res1;
-  *(((int*)&d)+1) = *res2;
+  double b = 8.23;
+  double c = 5.32;
+  double d, e;
 
 
-  printf ("d = %lf\n", d);
+
+  
+  for (i=0; i < 10000; i++) {
+    //d = b*c;
+    //e = b+c;
+  d = mult(b,c);
+  e = add(b,c);
+  }
+
+  printf ("d = %lf; e = %lf\n", d, e);
 
   exit(0); // To avoid cross-compiler exit routine
   return 0; // Never executed, just for compatibility

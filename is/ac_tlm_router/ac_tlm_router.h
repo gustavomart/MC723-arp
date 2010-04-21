@@ -34,7 +34,8 @@
 #define MEM_BASE 0x000000
 #define LOCK_BASE 0x500000
 #define MDOUBLE_BASE 0x600000
-#define MDOUBLE_TOP 0x700000
+#define ADOUBLE_BASE 0x700000
+#define MEM_TOP 0x800000
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +62,7 @@ public:
   ac_tlm_port R_port_mem;
   ac_tlm_port R_port_lock;
   ac_tlm_port R_port_mdouble;
+  ac_tlm_port R_port_adouble;
 
   ac_tlm_rsp route( const ac_tlm_req &request );
 

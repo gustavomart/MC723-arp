@@ -1,5 +1,5 @@
 /**
- * @file      ac_tlm_mdouble.cpp
+ * @file      ac_tlm_adouble.cpp
  * @author    Gustavo Solaira
  *
  * @brief     Implements a ac_tlm double multiplier.
@@ -24,15 +24,15 @@
 // SystemC includes
 // ArchC includes
 
-#include "ac_tlm_mdouble.h"
+#include "ac_tlm_adouble.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// Namespace to isolate lock from ArchC
-using user::ac_tlm_mdouble;
+using user::ac_tlm_adouble;
 
 /// Constructor
-ac_tlm_mdouble::ac_tlm_mdouble( sc_module_name module_name ) :
+ac_tlm_adouble::ac_tlm_adouble( sc_module_name module_name ) :
   sc_module( module_name ),
   target_export("iport")
 {
@@ -44,11 +44,11 @@ ac_tlm_mdouble::ac_tlm_mdouble( sc_module_name module_name ) :
 }
 
 /// Destructor
-ac_tlm_mdouble::~ac_tlm_mdouble() {
+ac_tlm_adouble::~ac_tlm_adouble() {
   delete [] fpu_reg;
 }
 
-void ac_tlm_mdouble::swap_double() {
+void ac_tlm_adouble::swap_double() {
   unsigned int swap_aux;
   swap_aux = fpu_reg[0];
   fpu_reg[0] = fpu_reg[1];
@@ -64,7 +64,7 @@ void ac_tlm_mdouble::swap_double() {
   * @param d id the data being write
   * @returns A TLM response packet with SUCCESS
 */
-ac_tlm_rsp_status ac_tlm_mdouble::writed( const uint32_t &a , const uint32_t &d )
+ac_tlm_rsp_status ac_tlm_adouble::writed( const uint32_t &a , const uint32_t &d )
 {
   uint32_t a_aux;
 
@@ -83,13 +83,13 @@ ac_tlm_rsp_status ac_tlm_mdouble::writed( const uint32_t &a , const uint32_t &d 
   * @param d id the data that will be read
   * @returns A TLM response packet with SUCCESS and a modified d
 */
-ac_tlm_rsp_status ac_tlm_mdouble::readd( const uint32_t &a , uint32_t &d )
+ac_tlm_rsp_status ac_tlm_adouble::readd( const uint32_t &a , uint32_t &d )
 {
   int a_aux;
 
   if (a == 16)
   {
-    *((double*) &fpu_reg[16]) = *((double *) &fpu_reg[0]) * (*((double*) &fpu_reg[8]));
+    *((double*) &fpu_reg[16]) = *((double *) &fpu_reg[0]) + (*((double*) &fpu_reg[8]));
   }
 
   switch (a) {
