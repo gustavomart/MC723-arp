@@ -65,7 +65,7 @@ ac_tlm_rsp ac_tlm_router::route( const ac_tlm_req &request )
     // Route to Read&Inc register
     ac_tlm_req req_aux = request;
     req_aux.addr -= LOCK_BASE;
-    return R_port_lock->transport( request );
+    return R_port_lock->transport( req_aux );
   }
   else if (request.addr < ADOUBLE_BASE)
   { 

@@ -60,8 +60,8 @@ ac_tlm_lock::~ac_tlm_lock() {
 ac_tlm_rsp_status ac_tlm_lock::writel( const uint32_t &a , const uint32_t &d )
 {
   // write value (decrement base memory)
-  //*((uint32_t *) &lock_mem[a-LOCK_BASE]) = *((uint32_t *) &d);
   *((uint32_t *) &lock_mem[a]) = *((uint32_t *) &d);
+
   return SUCCESS;
 }
 
@@ -74,10 +74,8 @@ ac_tlm_rsp_status ac_tlm_lock::writel( const uint32_t &a , const uint32_t &d )
 ac_tlm_rsp_status ac_tlm_lock::readl( const uint32_t &a , uint32_t &d )
 {
   // return stored value (decrement base memory)
-  //*((uint32_t *) &d) = *((uint32_t *) &lock_mem[a-LOCK_BASE]);
   *((uint32_t *) &d) = *((uint32_t *) &lock_mem[a]);
   // changes value to one
-  //lock_mem[a-LOCK_BASE] = 1;
   lock_mem[a] = 1;
 
   return SUCCESS;

@@ -48,16 +48,6 @@ ac_tlm_mdouble::~ac_tlm_mdouble() {
   delete [] fpu_reg;
 }
 
-void ac_tlm_mdouble::swap_double() {
-  unsigned int swap_aux;
-  swap_aux = fpu_reg[0];
-  fpu_reg[0] = fpu_reg[1];
-  fpu_reg[1] = swap_aux;
-  swap_aux = fpu_reg[2];
-  fpu_reg[2] = fpu_reg[3];
-  fpu_reg[3] = swap_aux;
-}
-
 /** Write the operands and perform calculation after wrote the second
   * Note: Always write 32 bits
   * @param a is the address to write

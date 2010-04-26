@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#define A 90
+
 #define REGM1 0x600000
 #define REGM2 0x600008
 
@@ -31,23 +33,26 @@ double add(double a, double b)
 }
 
 int main(int argc, char *argv[]) {
-  int i;
 
-  double b = 8.23;
-  double c = 5.32;
-  double d, e;
+  int i, j, k;
+  double matriz[A][A];
+  double result[A][A];
 
+  for (i=0; i < A; i++)
+    for (j=0; j < A; j++)
+      matriz[i][j] = i+j;
 
-
-  
-  for (i=0; i < 10000; i++) {
-    //d = b*c;
-    //e = b+c;
-  d = mult(b,c);
-  e = add(b,c);
+  for (i = 0; i < A; i++)
+  {
+    for (j = 0; j < A; j++)
+    {
+      result[i][j] = 0;
+      for (k = 0; k < A; k++)
+      {
+        result[i][j] = add(result[i][j], mult(matriz[i][k], matriz[k][j]));
+      }
+    }
   }
-
-  printf ("d = %lf; e = %lf\n", d, e);
 
   exit(0); // To avoid cross-compiler exit routine
   return 0; // Never executed, just for compatibility
