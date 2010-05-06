@@ -19,5 +19,5 @@
 //!/Default constructor.
 mips1_arch_ref::mips1_arch_ref(mips1_arch& arch) : ac_arch_ref<mips1_parms::ac_word, mips1_parms::ac_Hword>(arch),
   ac_pc(arch.ac_pc),
-  DM(arch.DM),   RB(arch.RB),   npc(arch.npc),   hi(arch.hi),   lo(arch.lo) {}
+  DM(arch.DM),   INSM(arch.INSM),   RB(arch.RB),   npc(arch.npc),   hi(arch.hi),   lo(arch.lo) {}
 

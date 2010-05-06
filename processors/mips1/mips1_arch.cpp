@@ -17,19 +17,21 @@
 
 mips1_arch::mips1_arch() :
   ac_arch_dec_if<mips1_parms::ac_word, mips1_parms::ac_Hword>(mips1_parms::AC_MAX_BUFFER),
-  ac_pc("ac_pc", 0, time_step),
+  ac_pc("ac_pc", 0),
   DM_port("DM_port", 5242880U),
   DM(*this, DM_port),
-  RB("RB", time_step),
-  npc("npc", 0, time_step),
-  hi("hi", 0, time_step),
-  lo("lo", 0, time_step) {
+  INSM_port("INSM_port", 5242880U),
+  INSM(*this, INSM_port),
+  RB("RB"),
+  npc("npc", 0),
+  hi("hi", 0),
+  lo("lo", 0) {
 
   ac_mt_endian = mips1_parms::AC_MATCH_ENDIAN;
   ac_tgt_endian = mips1_parms::AC_PROC_ENDIAN;
 
-  IM = &DM;
-  APP_MEM = &DM;
+  IM = &INSM;
+  APP_MEM = &INSM;
 
 }
 

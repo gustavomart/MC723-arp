@@ -324,17 +324,6 @@ void mips1::behavior() {
   }
 //!Updating Regs for behavioral simulation.
   if(!ac_wait_sig){
-    DM.commit_delays( (double)ac_cycle_counter );
-    RB.commit_delays( (double)ac_cycle_counter );
-    npc.commit_delays( (double)ac_cycle_counter );
-    hi.commit_delays( (double)ac_cycle_counter );
-    lo.commit_delays( (double)ac_cycle_counter );
-    ac_pc.commit_delays(  (double)ac_cycle_counter );
-    if(!ac_parallel_sig)
-      ac_cycle_counter+=1;
-    else
-      ac_parallel_sig = 0;
-
     bhv_pc = ac_pc;
   }
   if (ac_stop_flag) {

@@ -35,6 +35,8 @@ public:
   //!Storage Devices.
   ac_tlm_port DM_port;
   ac_memport<mips1_parms::ac_word, mips1_parms::ac_Hword> DM;
+  ac_tlm_port INSM_port;
+  ac_memport<mips1_parms::ac_word, mips1_parms::ac_Hword> INSM;
   ac_regbank<32, mips1_parms::ac_word, mips1_parms::ac_Dword> RB;
   ac_reg<mips1_parms::ac_word> npc;
   ac_reg<mips1_parms::ac_word> hi;

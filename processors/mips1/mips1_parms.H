@@ -16,8 +16,6 @@
 #ifndef  _MIPS1_PARMS_H
 #define  _MIPS1_PARMS_H
 
-#define  AC_DELAY 	 //!< Indicates that delay option is turned on.
-
 namespace mips1_parms {
 
 
@@ -30,8 +28,8 @@ static const unsigned int AC_WORDSIZE = 32; 	 //!< Architecture wordsize in bits
 static const unsigned int AC_FETCHSIZE = 32; 	 //!< Architecture fetchsize in bits.
 static const unsigned int AC_MATCH_ENDIAN = 0; 	 //!< If the simulated arch match the endian with host.
 static const unsigned int AC_PROC_ENDIAN = 1; 	 //!< The simulated arch is big endian?
-static const unsigned int AC_RAMSIZE = 5242880U; 	 //!< Architecture RAM size in bytes (storage DM).
-static const unsigned int AC_RAM_END = 5242880U; 	 //!< Architecture end of RAM (storage DM).
+static const unsigned int AC_RAMSIZE = 5242880U; 	 //!< Architecture RAM size in bytes (storage INSM).
+static const unsigned int AC_RAM_END = 5242880U; 	 //!< Architecture end of RAM (storage INSM).
 
 
 //!Word type definitions.

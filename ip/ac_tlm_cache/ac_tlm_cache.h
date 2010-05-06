@@ -1,9 +1,6 @@
 /**
- * @file      ac_tlm_adouble.h
+ * @file      ac_tlm_cache.h
  * @author    Gustavo Solaira
- *
- *
- * @brief     Defines a ac_tlm double multiplier.
  *
  * @attention Copyright (C) 2002-2005 --- The ArchC Team
  *
@@ -22,8 +19,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef AC_TLM_adouble_H_
-#define AC_TLM_adouble_H_
+#ifndef AC_TLM_CACHE_H_
+#define AC_TLM_CACHE_H_
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -32,34 +29,59 @@
 #include <systemc>
 // ArchC includes
 #include "ac_tlm_protocol.H"
+#include "ac_tlm_port.H"
 
 //////////////////////////////////////////////////////////////////////////////
 
 // using statements
 using tlm::tlm_transport_if;
 
+// cache struct
+typedef struct {
+
+  uint8_t *blocks;
+  int *tags;
+  // USAR BIT NO LADO DIREITO DE INVALIDO
+  bool valid;
+
+} Line;
+
+typedef struct {
+  
+  Line *lines;
+  
+} Way;
+
+typedef struct {
+  
+  Way *ways;
+
+} Cache;
+  
+
 //////////////////////////////////////////////////////////////////////////////
 
 //#define DEBUG
 
-/// Namespace to isolate adouble from ArchC
+/// Namespace to isolate memory from ArchC
 namespace user
 {
 
-/// A TLM lock register
-class ac_tlm_adouble :
+/// A TLM router
+class ac_tlm_cache :
   public sc_module,
-  public ac_tlm_transport_if // Using ArchC TLM protocol
+  public ac_tlm_transport_if
 {
 public:
   /// Exposed port with ArchC interface
   sc_export< ac_tlm_transport_if > target_export;
-  /// Internal write
-  ac_tlm_rsp_status writed( const uint32_t & , const uint32_t & );
-  /// Internal read
-  ac_tlm_rsp_status readd( const uint32_t & , uint32_t & );
 
-  void swap_double();
+  ac_tlm_port MEM_port;
+
+  /// Internal write
+  ac_tlm_rsp_status write( const uint32_t & , const uint32_t & );
+  /// Internal read
+  ac_tlm_rsp_status read( const uint32_t & , uint32_t & );
 
   /**
    * Implementation of TLM transport method that
@@ -78,14 +100,14 @@ public:
     cout << "Transport READ at 0x" << hex << request.addr << " value ";
     cout << response.data << endl;
       #endif
-      response.status = readd( request.addr , response.data );
+      response.status = read( request.addr , response.data );
       break;
     case WRITE:     // Packet is a WRITE
       #ifdef DEBUG
     cout << "Transport WRITE at 0x" << hex << request.addr << " value ";
     cout << request.data << endl;
       #endif
-      response.status = writed( request.addr , request.data );
+      response.status = write( request.addr , response.data );
       break;
     default :
       response.status = ERROR;
@@ -100,19 +122,18 @@ public:
    * Default constructor.
    *
    */
-  ac_tlm_adouble( sc_module_name module_name );
+  ac_tlm_cache( sc_module_name module_name, int s_block, int n_lines, int n_ways );
 
   /**
    * Default destructor.
    */
-  ~ac_tlm_adouble();
+  ~ac_tlm_cache();
 
 private:
-  // two ints for each register, two for the result 
-  uint8_t *fpu_reg;
+  Cache cache;
 
 };
 
 };
 
-#endif //AC_TLM_adouble_H_
+#endif //AC_TLM_ROUTER_H_

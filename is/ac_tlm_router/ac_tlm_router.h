@@ -60,9 +60,9 @@ public:
   sc_export< ac_tlm_transport_if > target_export;
 
   ac_tlm_port R_port_mem;
-  ac_tlm_port R_port_lock;
-  ac_tlm_port R_port_mdouble;
-  ac_tlm_port R_port_adouble;
+  //ac_tlm_port R_port_lock;
+  //ac_tlm_port R_port_mdouble;
+  //ac_tlm_port R_port_adouble;
 
   ac_tlm_rsp route( const ac_tlm_req &request );
 

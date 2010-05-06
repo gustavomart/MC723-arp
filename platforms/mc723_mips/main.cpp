@@ -22,16 +22,18 @@ const char *archc_options="-abi -dy ";
 #include  <systemc.h>
 #include  "mips1.H"
 #include  "ac_tlm_mem.h"
-#include  "ac_tlm_lock.h"
+//#include  "ac_tlm_lock.h"
 #include  "ac_tlm_router.h"
-#include "ac_tlm_mdouble.h"
-#include "ac_tlm_adouble.h"
+//#include "ac_tlm_mdouble.h"
+//#include "ac_tlm_adouble.h"
+#include "ac_tlm_cache.h"
 
 using user::ac_tlm_mem;
-using user::ac_tlm_lock;
-using user::ac_tlm_mdouble;
-using user::ac_tlm_adouble;
+//using user::ac_tlm_lock;
+//using user::ac_tlm_mdouble;
+//using user::ac_tlm_adouble;
 using user::ac_tlm_router;
+using user::ac_tlm_cache;
 
 int sc_main(int ac, char *av[])
 {
@@ -39,20 +41,25 @@ int sc_main(int ac, char *av[])
   //!  ISA simulator
   mips1 mips1_proc1("mips1");
   ac_tlm_mem mem("mem");
-  ac_tlm_lock lock("lock");
-  ac_tlm_mdouble mdouble("mdouble");
-  ac_tlm_adouble adouble("adouble");
+  //ac_tlm_lock lock("lock");
+  //ac_tlm_mdouble mdouble("mdouble");
+  //ac_tlm_adouble adouble("adouble");
+  ac_tlm_cache ins_cache("ins_cache");
+  ac_tlm_cache mem_cache("mem_cache");
+
   ac_tlm_router router("router");
 
 #ifdef AC_DEBUG
   ac_trace("mips1_proc1.trace");
 #endif 
 
-  mips1_proc1.DM_port(router.target_export);
+  mips1_proc1.DM_port(mem_cache.target_export);
+  mips1_proc1.INSM_port(ins_cache.target_export);
+
   router.R_port_mem(mem.target_export);
-  router.R_port_lock(lock.target_export);
-  router.R_port_mdouble(mdouble.target_export);
-  router.R_port_adouble(adouble.target_export);
+  //router.R_port_lock(lock.target_export);
+  //router.R_port_mdouble(mdouble.target_export);
+  //router.R_port_adouble(adouble.target_export);
 
   mips1_proc1.init(ac, av);
   cerr << endl;

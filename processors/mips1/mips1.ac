@@ -39,6 +39,7 @@
 AC_ARCH(mips1){
 
   ac_tlm_port DM:5M;
+  ac_tlm_port INSM:5M;
   ac_regbank RB:32;
   ac_reg npc;
   ac_reg hi, lo;
