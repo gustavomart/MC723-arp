@@ -34,35 +34,40 @@
 using user::ac_tlm_cache;
 
 /// Constructor
-ac_tlm_cache::ac_tlm_cache( sc_module_name module_name, int s_block, int n_lines, int n_ways ) :
+ac_tlm_cache::ac_tlm_cache( sc_module_name module_name, int bb, int bl, int bw ) :
   sc_module( module_name ),
   target_export("iport"),
   R_port("R_port", 5242880U)
 {
+    round_robin = 0;
+
     int i, j;
 
     /// Binds target_export to the cache
     target_export( *this );
 
     /// Initialize cache vector
-    // size of the block in bytes (s = 2^n)
-    // receives in words and changes to number of bytes
-    this.s_block = s_block+2;
+    // number of words in bits (s = 2^n)
+    b_blocks = bb;
+    n_blocks = 0x1 << bb;
     // number of lines in bits (s = 2^n)
-    this.n_lines = n_lines;
+    b_lines = bl;
+    n_lines = 0x1 << bl;
     // number of ways in bits (s = 2^n)
-    this.n_ways = n_ways;
+    b_ways = bw;
+    n_ways = 0x1 << bw;
 
-    Cache.ways = new Way[n_ways];
+
+    cache.ways = new Way[n_ways];
 
     for (i=0; i < n_ways; i++)
     {
-      Cache.ways[i].lines = new Line[n_lines];
+      cache.ways[i].lines = new Line[n_lines];
 
       for (j=0; j < n_lines; j++)
       {
-        Cache.ways[i].lines[j].blocks = new uint_8[4*s_block];
-        Cache.ways[i].lines[j].valid = false;
+        cache.ways[i].lines[j].blocks = new uint32_t[n_blocks];
+        cache.ways[i].lines[j].tag = 0x1;
       }
     }
 
@@ -77,59 +82,80 @@ ac_tlm_cache::~ac_tlm_cache() {
    {
      for (j=0; j < n_lines; j++)
      {
-       delete [] Cache.ways[i].lines[j].block;
+       delete [] cache.ways[i].lines[j].blocks;
      }
 
-     delete [] Cache.ways[i].lines;
+     delete [] cache.ways[i].lines;
    }
 
-   delete Cache.ways;
+   delete [] cache.ways;
 }
 
 /** Cache Write
+  * It is a write-through cache
   * Note: Always write 32 bits
   * @param a is the address to write
   * @param d id the data being write
   * @returns A TLM response packet with SUCCESS
 */
-ac_tlm_rsp_status ac_tlm_mem::write( const uint32_t &a , const uint32_t &d )
+ac_tlm_rsp_status ac_tlm_cache::write( const uint32_t &a , const uint32_t &d )
 {
-  ac_tlm_request req_aux;
+  int i;
+  bool found = false;
+  ac_tlm_req req_aux, req_read;
+  ac_tlm_rsp rsp_read;
   req_aux.addr = a;
   req_aux.data = d;
-
+  req_aux.type = WRITE;
   uint32_t addr = a;
 
-  int info_size = s_block+n_lines;
-  int tag_size = 32 - info_size;
+  int info_size = b_blocks+b_lines+2;
+  int tag_size = 32-info_size;
 
   // find tag maintain in left side
-  int tag = addr & (~0x0 << info_size);
-
+  int tag = addr & ((uint32_t)~0x0 << info_size);
   // find line
-  int line = (addr & (~0x0 >> tag_size)) >> s_block;
+  int l = (addr & ((uint32_t)~0x0 >> tag_size)) >> (b_blocks+2);
+  // find position in block (indexed by words)
+  int b = (addr & ((uint32_t)~0x0 >> (32 - b_blocks - 2))) >> 2;
 
-  // find position in block (indexed by bytes)
-  int b_pos = addr & (~0x0 >> (32 - s_block);
+  //printf("addr=0x%x tag=0x%x l=0x%x b=0x%x\n", addr, tag, l, b);
 
-  // USAR FOR E PULAR CARA Q VAI ESCREVER, AI NAO PRECISA DO IF
-
-  // check if the block is one word
-  if (s_block == 1)
+  // only modify cache and write to memory
+  for (i=0; i < n_ways; i++)
   {
-    // only modify cache and write to memory
+    if (cache.ways[i].lines[l].tag == tag)
+    {
+      cache.ways[i].lines[l].blocks[b] = *((uint32_t *) &d);
+      // redirect to router
+      R_port->transport( req_aux );
+      found = true;
+    }
+  }
+
+  if (! found)
+  {
+    //printf("addr=0x%x tag=0x%x l=0x%x b=0x%x\n", addr, tag, l, b);
+
+    // put in the cache
+    cache.ways[round_robin].lines[l].tag = tag;
+    // read whole block to cache     
+    req_read.type = READ;      
     
-
-
+    for (i=0; i < n_blocks; i++)
+    {
+      req_read.addr = tag | (l << info_size-1) | (b << (b_blocks+2-1));
+      rsp_read = R_port->transport( req_read );
+//printf("addr=0x%x tag=0x%x l=0x%x b=0x%x\n", addr, tag, l, b);
+      cache.ways[i].lines[l].blocks[b] = rsp_read.data;
+    }
+    // modify value
+    cache.ways[round_robin].lines[l].blocks[b] = *((uint32_t *) &d);
+    // redirect to router
+    R_port->transport( req_aux );
+    round_robin = (round_robin+1) % n_ways;
   }
-  else
-  {
-    // read the block, modify and write to memory
 
-
-  }
-
-  *((uint32_t *) &memory[a]) = *((uint32_t *) &d);
   return SUCCESS;
 }
 
@@ -139,14 +165,11 @@ ac_tlm_rsp_status ac_tlm_mem::write( const uint32_t &a , const uint32_t &d )
   * @param d id the data that will be read
   * @returns A TLM response packet with SUCCESS and a modified d
 */
-ac_tlm_rsp_status ac_tlm_mem::read( const uint32_t &a , uint32_t &d )
+ac_tlm_rsp_status ac_tlm_cache::read( const uint32_t &a , uint32_t &d )
 {
-  ac_tlm_request req_aux;
+  ac_tlm_req req_aux;
   req_aux.addr = a;
   req_aux.data = d;
-
-
-  *((uint32_t *) &d) = *((uint32_t *) &memory[a]);
 
   return SUCCESS;
 }

@@ -57,7 +57,7 @@ class ac_tlm_router :
 {
 public:
   /// Exposed port with ArchC interface
-  sc_export< ac_tlm_transport_if > target_export;
+  sc_export< ac_tlm_transport_if > target_export1, target_export2;
 
   ac_tlm_port R_port_mem;
   //ac_tlm_port R_port_lock;

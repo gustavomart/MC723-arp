@@ -39,10 +39,9 @@ using tlm::tlm_transport_if;
 // cache struct
 typedef struct {
 
-  uint8_t *blocks;
-  int *tags;
-  // USAR BIT NO LADO DIREITO DE INVALIDO
-  bool valid;
+  uint32_t *blocks;
+  // bit menos significativo como 1 e invalido, 0 eh valido
+  uint32_t tag;
 
 } Line;
 
@@ -76,7 +75,11 @@ public:
   /// Exposed port with ArchC interface
   sc_export< ac_tlm_transport_if > target_export;
 
-  ac_tlm_port MEM_port;
+  ac_tlm_port R_port;
+
+  int b_blocks, b_lines, b_ways, n_blocks, n_lines, n_ways;
+
+  int round_robin;
 
   /// Internal write
   ac_tlm_rsp_status write( const uint32_t & , const uint32_t & );
@@ -100,14 +103,16 @@ public:
     cout << "Transport READ at 0x" << hex << request.addr << " value ";
     cout << response.data << endl;
       #endif
-      response.status = read( request.addr , response.data );
+      //response.status = read( request.addr , response.data );
+      response = R_port->transport( request );
       break;
     case WRITE:     // Packet is a WRITE
       #ifdef DEBUG
     cout << "Transport WRITE at 0x" << hex << request.addr << " value ";
     cout << request.data << endl;
       #endif
-      response.status = write( request.addr , response.data );
+      response.status = write( request.addr , request.data );
+      //response = R_port->transport( request );
       break;
     default :
       response.status = ERROR;
