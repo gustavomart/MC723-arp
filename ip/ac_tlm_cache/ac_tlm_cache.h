@@ -79,7 +79,7 @@ public:
   int info_size, tag_size;
   uint32_t mask_tag, mask_line, mask_block;
 
-  unsigned long int hit, miss;
+  unsigned long int wHit, wMiss, rHit, rMiss;
 
   char type;
 

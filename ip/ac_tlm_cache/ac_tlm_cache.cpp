@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-bool executedLw = false;
+static bool executedLw = false;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ bool executedLw = false;
 using user::ac_tlm_cache;
 
 /// Constructor
-ac_tlm_cache::ac_tlm_cache( sc_module_name module_name, int bb, int bl, int bw, char type ) :
+ac_tlm_cache::ac_tlm_cache( sc_module_name module_name, int bb, int bl, int bw, char t ) :
   sc_module( module_name ),
   target_export("iport"),
   R_port("R_port", 5242880U)
@@ -46,9 +46,9 @@ ac_tlm_cache::ac_tlm_cache( sc_module_name module_name, int bb, int bl, int bw, 
 
     int i, j;
     
-    this->type = type;
+    type = t;
 
-    hit = miss = 0;
+    rHit = rMiss = wHit = wMiss = 0;
 
     /// Binds target_export to the cache
     target_export( *this );
@@ -92,21 +92,31 @@ ac_tlm_cache::~ac_tlm_cache() {
 
   int i, j;
 
-  float missRate = ((float)miss)/((float)(hit+miss));
-  float hitRate = 1.0-missRate;
+  float wMissRate = ((float)wMiss)/((float)(wHit+wMiss));
+  float wHitRate = 1.0-wMissRate;
+
+  float rMissRate = ((float)rMiss)/((float)(rHit+rMiss));
+  float rHitRate = 1.0-rMissRate;
+
+  float tMissRate = ((float)wMiss+(float)rMiss)/((float)(wHit+wMiss+rHit+rMiss));
+  float tHitRate = 1.0-tMissRate;
   
   switch (type)
   {
     case 'i':
-      printf("Instruction Cache\n");
+      printf("Instruction Cache\n%d words - %d lines - %d ways\n", n_blocks, n_lines, n_ways);
       break;
     case 'd':
-      printf("Data Cache\n");
+      printf("Data Cache\n%d words - %d lines - %d ways\n", n_blocks, n_lines, n_ways);
       break;
   }
   
-  printf ("Hits: %lu Misses: %lu\n", hit, miss);
-  printf("Hit Rate: %f -- Miss Rate: %f\n\n", hitRate, missRate);
+    
+  printf ("rHits: %lu rMisses: %lu\nwHits: %lu wMisses: %lu\n--------\n", rHit, rMiss, wHit, wMiss);
+  printf("wHit Rate: %f -- wMiss Rate: %f\n", wHitRate, wMissRate);
+  printf("rHit Rate: %f -- rMiss Rate: %f\n", rHitRate, rMissRate);
+  printf("tHit Rate: %f -- tMiss Rate: %f\n---------\n\n", tHitRate, tMissRate);
+
 
    for (i=0; i < n_ways; i++)
    {
@@ -178,10 +188,8 @@ ac_tlm_rsp_status ac_tlm_cache::write( const ac_tlm_req &request )
       // redirect to router
       response = R_port->transport( request );
       found = true;
-      if (type='i' && executedLw) 
-        hit++;
-      else if (type=='d')
-        hit++;
+      if (executedLw) 
+        wHit++;
       break;
     }
   }
@@ -191,10 +199,8 @@ ac_tlm_rsp_status ac_tlm_cache::write( const ac_tlm_req &request )
     // find the way
     int way = find_invalid( l );
 
-    if ((type=='i') && (executedLw)) 
-      miss++;
-    else if (type=='d')
-      miss++;
+    if (executedLw)
+      wMiss++;
 
     // put in the cache
     cache.ways[way].lines[l].tag = tag;
@@ -224,7 +230,7 @@ ac_tlm_rsp_status ac_tlm_cache::write( const ac_tlm_req &request )
 */
 ac_tlm_rsp ac_tlm_cache::read( const ac_tlm_req &request )
 {
-  if ((!executedLw) && (type='i')) executedLw = true;
+  if ((!executedLw) && (type=='i')) executedLw = true;
 
   uint32_t i;
   ac_tlm_rsp rsp_read, response;
@@ -245,7 +251,7 @@ ac_tlm_rsp ac_tlm_cache::read( const ac_tlm_req &request )
     {
       *((uint32_t *) &response.data) = *((uint32_t *) &cache.ways[i].lines[l].blocks[b]);
       found = true;
-      hit++;
+      if (executedLw) rHit++;
       break;
     }
   }
@@ -255,7 +261,7 @@ ac_tlm_rsp ac_tlm_cache::read( const ac_tlm_req &request )
     // find the way
     int way = find_invalid( l );
 
-    miss++;
+    if (executedLw) rMiss++;
 
     // put in the cache
     cache.ways[way].lines[l].tag = tag;

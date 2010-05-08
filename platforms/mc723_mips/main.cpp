@@ -47,9 +47,9 @@ int sc_main(int ac, char *av[])
   //ac_tlm_adouble adouble("adouble");
 
   // bits of words in blocks - bits of lines - bits of ways
-  // for the tests the cache must have 2Kbytes
-  ac_tlm_cache ins_cache("ins_cache", 4, 3, 2, 'i');
-  ac_tlm_cache data_cache("mem_cache", 3, 3, 3, 'd');
+  // for the tests the cache must have 1Kbytes sum=8
+  ac_tlm_cache ins_cache("ins_cache", 6, 1, 1, 'i');
+  ac_tlm_cache data_cache("data_cache", 3, 3, 2, 'd');
 
   ac_tlm_router router("router");
 
