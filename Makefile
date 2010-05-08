@@ -52,8 +52,8 @@ export LIBFILES:= \
   $(foreach is, $(IS), $(ARP)/is/$(is)/lib$(is).a)\
   $(foreach wrapper, $(WRAPPER), $(ARP)/wrapper/$(wrapper)/lib$(wrapper).a)\
 
-#export CFLAGS:=-g
-export CFLAGS:=-O3
+export CFLAGS:=-g
+#export CFLAGS:=-O3
 
 export CC:=g++
 

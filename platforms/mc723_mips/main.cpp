@@ -45,9 +45,9 @@ int sc_main(int ac, char *av[])
   //ac_tlm_mdouble mdouble("mdouble");
   //ac_tlm_adouble adouble("adouble");
 
-  // size of block - bits of lines - bits of ways
-  ac_tlm_cache ins_cache("ins_cache", 1, 1, 1);
-  ac_tlm_cache mem_cache("mem_cache", 1, 1, 1);
+  // bits of words in blocks - bits of lines - bits of ways
+  ac_tlm_cache ins_cache("ins_cache", 4, 4, 2, 'i');
+  ac_tlm_cache data_cache("mem_cache", 4, 4, 2, 'd');
 
   ac_tlm_router router("router");
 
@@ -55,11 +55,12 @@ int sc_main(int ac, char *av[])
   ac_trace("mips1_proc1.trace");
 #endif 
 
-  mips1_proc1.DM_port(mem_cache.target_export);
+  mips1_proc1.DM_port(data_cache.target_export);
+  //mips1_proc1.INSM_port(router.target_export1);
   mips1_proc1.INSM_port(ins_cache.target_export);
 
   ins_cache.R_port(router.target_export1);
-  mem_cache.R_port(router.target_export2);
+  data_cache.R_port(router.target_export2);
 
   router.R_port_mem(mem.target_export);
 

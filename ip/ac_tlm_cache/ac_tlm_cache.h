@@ -60,8 +60,6 @@ typedef struct {
 
 //////////////////////////////////////////////////////////////////////////////
 
-//#define DEBUG
-
 /// Namespace to isolate memory from ArchC
 namespace user
 {
@@ -80,6 +78,10 @@ public:
   int b_blocks, b_lines, b_ways, n_blocks, n_lines, n_ways;
   int info_size, tag_size;
   uint32_t mask_tag, mask_line, mask_block;
+
+  unsigned long int hit, miss;
+
+  char type;
 
   int round_robin;
 
@@ -105,8 +107,7 @@ public:
     cout << "Transport READ at 0x" << hex << request.addr << " value ";
     cout << response.data << endl;
       #endif
-      //response = read( request );
-      response = R_port->transport( request );
+      response = read( request );
       break;
     case WRITE:     // Packet is a WRITE
       #ifdef DEBUG
@@ -128,7 +129,7 @@ public:
    * Default constructor.
    *
    */
-  ac_tlm_cache( sc_module_name module_name, int s_block, int n_lines, int n_ways );
+  ac_tlm_cache( sc_module_name module_name, int s_block, int n_lines, int n_ways, char type );
 
   /**
    * Default destructor.
