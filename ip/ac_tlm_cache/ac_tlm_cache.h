@@ -38,8 +38,8 @@ using tlm::tlm_transport_if;
 
 // cache struct
 typedef struct {
-
-  uint32_t *blocks;
+  // blocks are stored as bytes
+  uint8_t *blocks;
   // bit menos significativo como 1 e invalido, 0 eh valido
   uint32_t tag;
 
@@ -115,6 +115,7 @@ public:
     cout << request.data << endl;
       #endif
       response.status = write( request );
+      //response = R_port->transport(request);
       break;
     default :
       response.status = ERROR;

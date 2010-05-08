@@ -68,7 +68,7 @@ ac_tlm_cache::ac_tlm_cache( sc_module_name module_name, int bb, int bl, int bw, 
     // initialize masks
     mask_tag = (uint32_t)~0x0 << info_size;
     mask_line = (uint32_t)~0x0 >> tag_size;
-    mask_block = (uint32_t)~0x0 >> (32 - b_blocks - 2);
+    mask_block = (uint32_t)~0x0 >> (32 - b_blocks - 2 );
 
     // Initialize cache structures
     cache.ways = new Way[n_ways];
@@ -78,7 +78,7 @@ ac_tlm_cache::ac_tlm_cache( sc_module_name module_name, int bb, int bl, int bw, 
 
       for (j=0; j < n_lines; j++)
       {
-        cache.ways[i].lines[j].blocks = new uint32_t[n_blocks];
+        cache.ways[i].lines[j].blocks = new uint8_t[n_blocks*4];
         cache.ways[i].lines[j].tag = 0x1;
       }
     }
@@ -137,8 +137,8 @@ ac_tlm_rsp_status ac_tlm_cache::write( const ac_tlm_req &request )
   uint32_t tag = addr & mask_tag;
   // find line
   uint32_t l = (addr & mask_line) >> (b_blocks+2);
-  // find position in block (indexed by words)
-  uint32_t b = (addr & mask_block) >> 2;
+  // find position in block (indexed by bytes)
+  uint32_t b = addr & mask_block;
 
   // only modify cache and write to memory
   for (i=0; i < n_ways; i++)
@@ -161,14 +161,14 @@ ac_tlm_rsp_status ac_tlm_cache::write( const ac_tlm_req &request )
     cache.ways[round_robin].lines[l].tag = tag;
     req_read.type = READ;      
     //printf("NOT FOUND way=0x%x addr=0x%x tag=0x%x l=0x%x b=0x%x\n", round_robin, addr, tag, l, b);
-    
+
     // read whole block to cache     
     for (i=0; i < n_blocks; i++)
     {
       req_read.addr = tag | (l << (b_blocks+2)) | (i << 2);
       //printf("READING way=0x%x addr=0x%x tag=0x%x l=0x%x b=0x%x\n", round_robin, req_read.addr, tag, l, i);
       rsp_read = R_port->transport( req_read );
-      *((uint32_t *) &cache.ways[round_robin].lines[l].blocks[i]) = *((uint32_t *) &rsp_read.data);
+      *((uint32_t *) &cache.ways[round_robin].lines[l].blocks[i<<2]) = *((uint32_t *) &rsp_read.data);
     }
 
     // modify value
@@ -176,7 +176,6 @@ ac_tlm_rsp_status ac_tlm_cache::write( const ac_tlm_req &request )
     // redirect to router
     response = R_port->transport( request );
     round_robin = (round_robin+1) % n_ways;
-    //printf("data=0x%x\n", request.data);
   }
 
   return response.status;
@@ -191,16 +190,15 @@ ac_tlm_rsp ac_tlm_cache::read( const ac_tlm_req &request )
 {
   uint32_t i;
   ac_tlm_rsp rsp_read, response;
-  uint32_t addr = request.addr;
   ac_tlm_req req_read;
   bool found = false;
 
   // find tag maintain in left side
-  int tag = addr & mask_tag;
+  uint32_t tag = request.addr & mask_tag;
   // find line
-  uint32_t l = (addr & mask_line) >> (b_blocks+2);
+  uint32_t l = ((uint32_t)(request.addr & mask_line)) >> (b_blocks+2);
   // find position in block (indexed by words)
-  uint32_t b = (addr & mask_block) >> 2;
+  uint32_t b = request.addr & mask_block;
 
   // tries to find the data in the cache
   for (i=0; i < n_ways; i++)
@@ -210,8 +208,7 @@ ac_tlm_rsp ac_tlm_cache::read( const ac_tlm_req &request )
       *((uint32_t *) &response.data) = *((uint32_t *) &cache.ways[i].lines[l].blocks[b]);
       found = true;
       hit++;
-      //printf("FOUND way=0x%x addr=0x%x tag=0x%x l=0x%x b=0x%x\n", i, addr, tag, l, b);    
-      //printf("data=0x%x\n", response.data);  
+      //printf("FOUND b_data=0x%x read_data=0x%x way=0x%x reqaddr=0x%x addr=0x%x tag=0x%x l=0x%x b=0x%x\n", cache.ways[round_robin].lines[l].blocks[i], rsp_read.data, round_robin, req_read.addr, request.addr, tag, l, b);
       break;
     }
   }
@@ -222,24 +219,21 @@ ac_tlm_rsp ac_tlm_cache::read( const ac_tlm_req &request )
     // put in the cache
     cache.ways[round_robin].lines[l].tag = tag;
     req_read.type = READ;   
-    //printf("NOT FOUND way=0x%x addr=0x%x tag=0x%x l=0x%x b=0x%x\n", round_robin, addr, tag, l, b);
     
     // read whole block to cache     
     for (i=0; i < n_blocks; i++)
     {
       req_read.addr = tag | (l << (b_blocks+2)) | (i << 2);
       rsp_read = R_port->transport( req_read );
-      *((uint32_t *) &cache.ways[round_robin].lines[l].blocks[i]) = *((uint32_t *) &rsp_read.data);
+      
+      *((uint32_t *) &cache.ways[round_robin].lines[l].blocks[i<<2]) = rsp_read.data;
+//printf("NOT FOUND b_data=0x%x read_data=0x%x way=0x%x reqaddr=0x%x addr=0x%x tag=0x%x l=0x%x b=0x%x\n", cache.ways[round_robin].lines[l].blocks[i], rsp_read.data, round_robin, req_read.addr, request.addr, tag, l, b);
     }
-
-    // redirect to router
+    
     *((uint32_t *) &response.data) = *((uint32_t *) &cache.ways[round_robin].lines[l].blocks[b]);
     round_robin = (round_robin+1) % n_ways;
-    //printf("data=0x%x\n", response.data);
+    //printf("response data=0x%x\n", response.data);
   }
-
-  //if (response.data == 523776)
-  //  printf("LEU VALOR FINAL\n");
 
   response.status = SUCCESS;
   

@@ -56,7 +56,6 @@ int sc_main(int ac, char *av[])
 #endif 
 
   mips1_proc1.DM_port(data_cache.target_export);
-  //mips1_proc1.INSM_port(router.target_export1);
   mips1_proc1.INSM_port(ins_cache.target_export);
 
   ins_cache.R_port(router.target_export1);
