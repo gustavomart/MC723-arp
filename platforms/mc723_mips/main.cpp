@@ -22,18 +22,19 @@ const char *archc_options="-abi -dy ";
 #include  <systemc.h>
 #include  "mips1.H"
 #include  "ac_tlm_mem.h"
-//#include  "ac_tlm_lock.h"
+#include "ac_tlm_cache.h"
 #include  "ac_tlm_router.h"
+//#include  "ac_tlm_lock.h"
 //#include "ac_tlm_mdouble.h"
 //#include "ac_tlm_adouble.h"
-#include "ac_tlm_cache.h"
+
 
 using user::ac_tlm_mem;
+using user::ac_tlm_router;
+using user::ac_tlm_cache;
 //using user::ac_tlm_lock;
 //using user::ac_tlm_mdouble;
 //using user::ac_tlm_adouble;
-using user::ac_tlm_router;
-using user::ac_tlm_cache;
 
 int sc_main(int ac, char *av[])
 {
@@ -46,8 +47,9 @@ int sc_main(int ac, char *av[])
   //ac_tlm_adouble adouble("adouble");
 
   // bits of words in blocks - bits of lines - bits of ways
-  ac_tlm_cache ins_cache("ins_cache", 4, 4, 2, 'i');
-  ac_tlm_cache data_cache("mem_cache", 4, 4, 2, 'd');
+  // for the tests the cache must have 2Kbytes
+  ac_tlm_cache ins_cache("ins_cache", 4, 3, 2, 'i');
+  ac_tlm_cache data_cache("mem_cache", 3, 3, 3, 'd');
 
   ac_tlm_router router("router");
 

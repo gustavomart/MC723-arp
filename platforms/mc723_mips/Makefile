@@ -24,7 +24,7 @@ main.o:
 all: $(EXE)
 #------------------------------------------------------
 run: all
-	./$(EXE) --load=hello_world.x
+	./$(EXE) --load=sha input_small.asc > output_small.asc
 #------------------------------------------------------
 clean:
 	rm -f $(OBJS) $(EXE) *~ *.o

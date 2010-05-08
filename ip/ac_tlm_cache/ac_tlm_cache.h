@@ -115,7 +115,6 @@ public:
     cout << request.data << endl;
       #endif
       response.status = write( request );
-      //response = R_port->transport(request);
       break;
     default :
       response.status = ERROR;
@@ -139,6 +138,8 @@ public:
 
 private:
   Cache cache;
+
+  int find_invalid(uint32_t line);
 
 };
 

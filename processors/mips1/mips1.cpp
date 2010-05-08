@@ -376,6 +376,7 @@ void mips1::init(int ac, char *av[]) {
   ac_init_opt( ac, av);
   ac_init_app( ac, av);
   APP_MEM->load(appfilename);
+
   set_args(ac_argc, ac_argv);
 #ifdef AC_VERIFY
   set_queue(av[0]);
