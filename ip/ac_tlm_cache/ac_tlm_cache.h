@@ -78,13 +78,15 @@ public:
   ac_tlm_port R_port;
 
   int b_blocks, b_lines, b_ways, n_blocks, n_lines, n_ways;
+  int info_size, tag_size;
+  uint32_t mask_tag, mask_line, mask_block;
 
   int round_robin;
 
   /// Internal write
-  ac_tlm_rsp_status write( const uint32_t & , const uint32_t & );
+  ac_tlm_rsp_status write( const ac_tlm_req & );
   /// Internal read
-  ac_tlm_rsp_status read( const uint32_t & , uint32_t & );
+  ac_tlm_rsp read( const ac_tlm_req & );
 
   /**
    * Implementation of TLM transport method that
@@ -103,7 +105,7 @@ public:
     cout << "Transport READ at 0x" << hex << request.addr << " value ";
     cout << response.data << endl;
       #endif
-      //response.status = read( request.addr , response.data );
+      //response = read( request );
       response = R_port->transport( request );
       break;
     case WRITE:     // Packet is a WRITE
@@ -111,8 +113,7 @@ public:
     cout << "Transport WRITE at 0x" << hex << request.addr << " value ";
     cout << request.data << endl;
       #endif
-      response.status = write( request.addr , request.data );
-      //response = R_port->transport( request );
+      response.status = write( request );
       break;
     default :
       response.status = ERROR;
