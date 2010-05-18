@@ -1,25 +1,33 @@
 # ####################################################
-# TLM mdouble with TLM interface (ArchC 2x compliant)
+# Dual Mips Platform
 # ####################################################
 
-TARGET=ac_tlm_mdouble
-INC_DIR := -I. -I$(ARCHC_PATH)/include/archc -I$(SYSTEMC)/include -I$(TLM_PATH) 
+include defs.arp
 
-SRCS := ac_tlm_mdouble.cpp
+TARGET=dual_mips.01
+EXE = $(TARGET).x
+
+SRCS := main.cpp
 OBJS := $(SRCS:.cpp=.o)
 
 #------------------------------------------------------
 .SILENT:
 #------------------------------------------------------
-.SUFFIXES: .cc .cpp .o
+.SUFFIXES: .cc .cpp .o .x
 #------------------------------------------------------
-lib: all
-	ar r lib$(TARGET).a $(OBJS)
+$(EXE): $(OBJS) $(LIBFILES)
+	$(CC) $(CFLAGS) $(INC_DIR) $(LIB_DIR) -o $(EXE) $(OBJS) $(LIBS)
 #------------------------------------------------------
-all: $(OBJS) ac_tlm_mdouble.h
+main.o:
+	$(CC) $(CFLAGS) $(INC_DIR) -c main.cpp
+#------------------------------------------------------
+all: $(EXE)
+#------------------------------------------------------
+run: all
+	./$(EXE) --load=hello_world.x
 #------------------------------------------------------
 clean:
-	rm -f $(OBJS) *~ *.o *.a
+	rm -f $(OBJS) $(EXE) *~ *.o
 #------------------------------------------------------
 distclean: clean
 #------------------------------------------------------
@@ -28,3 +36,8 @@ distclean: clean
 #------------------------------------------------------
 .cc.o:
 	$(CC) $(CFLAGS) $(INC_DIR) -c $<
+
+
+
+
+

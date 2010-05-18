@@ -34,14 +34,14 @@ using user::ac_tlm_router;
 /// Constructor
 ac_tlm_router::ac_tlm_router( sc_module_name module_name ) :
   sc_module( module_name ),
-  target_export("iport"),
+  target_export1("iport1"),
+  target_export2("iport2"),
   R_port_mem("R_port_mem", 5242880U),
-  R_port_lock("R_port_lock", 32U),
-  R_port_mdouble("R_port_mdouble", 1024U),
-  R_port_adouble("R_port_adouble", 1024U)
+  R_port_lock("R_port_lock", 32U)
 {
     /// Binds target_export to the router
-    target_export( *this );
+    target_export1( *this );
+    target_export2( *this );
 
 }
 
@@ -66,19 +66,6 @@ ac_tlm_rsp ac_tlm_router::route( const ac_tlm_req &request )
     ac_tlm_req req_aux = request;
     req_aux.addr -= LOCK_BASE;
     return R_port_lock->transport( req_aux );
-  }
-  else if (request.addr < ADOUBLE_BASE)
-  { 
-    // Route to MDOUBLE
-    ac_tlm_req req_aux = request;
-    req_aux.addr -= MDOUBLE_BASE;
-    return R_port_mdouble->transport( req_aux );
-  } 
-  else
-  {
-    ac_tlm_req req_aux = request;
-    req_aux.addr -= ADOUBLE_BASE;
-    return R_port_adouble->transport ( req_aux );
   }
   
 }

@@ -4,7 +4,7 @@
 # ####################################################
 
 # Variable that points to ArchC installation path
-PLATFORM := mc723_mips
+PLATFORM := dual_mips
 
 # Variable that points to SystemC installation path
 export SYSTEMC :=  /home/gustavomart/mc723/systemc

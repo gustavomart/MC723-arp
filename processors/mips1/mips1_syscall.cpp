@@ -89,6 +89,9 @@ void mips1_syscall::set_prog_args(int argc, char **argv)
 {
   int i, j, base;
 
+  /* Increment for each processor */
+  static int proc = 0;
+
   unsigned int ac_argv[30];
   char ac_argstr[512];
 
@@ -99,21 +102,27 @@ void mips1_syscall::set_prog_args(int argc, char **argv)
     memcpy(&ac_argstr[j], argv[i], len);
     j += len;
   }
+// 64 kbytes
 
   //Ajust %sp and write argument string
   RB[29] = AC_RAM_END-512;
   set_buffer(25, (unsigned char*) ac_argstr, 512);   //$25 = $29(sp) - 4 (set_buffer adds 4)
 
   //Ajust %sp and write string pointers
-  RB[29] = AC_RAM_END-512-120;
+  // 0x10000 = 4kB
+  RB[29] = AC_RAM_END-512-120-proc*0x10000;
   set_buffer_noinvert(25, (unsigned char*) ac_argv, 120);
 
   //Set %sp
-  RB[29] = AC_RAM_END-512-128;
+  // 0x10000 = 4kB
+  RB[29] = AC_RAM_END-512-128-proc*0x10000;
 
   //Set %o0 to the argument count
   RB[4] = argc;
 
   //Set %o1 to the string pointers
   RB[5] = AC_RAM_END-512-120;
+
+  /* Increment proc number */
+  proc = proc + 1;
 }
