@@ -1,15 +1,15 @@
 # ####################################################
-# Hello World
+# Matrix Mult
 # ####################################################
 
 CC = mips-elf-gcc
-CFLAGS = -O3 -specs=archc
+CFLAGS = -msoft-float -specs=archc
 LDFLAGS = -lm
 
-TARGET = lock_test.x
+TARGET = matrix_mult.x
 INC_DIR := -I.
 
-SRCS := lock_test.c
+SRCS := matrix_mult.c
 OBJS := $(SRCS:.c=.o)
 
 #------------------------------------------------------
@@ -28,7 +28,7 @@ clean:
 distclean: clean
 #------------------------------------------------------
 bin:
-	tar xzf lock_test-bin.tgz
+	tar xzf matrix_mult-bin.tgz
 #------------------------------------------------------
 .c.o:
 	$(CC) -c $(CFLAGS) $(INC_DIR) -c $<

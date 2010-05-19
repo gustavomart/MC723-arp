@@ -29,7 +29,7 @@ using user::ac_tlm_mem;
 using user::ac_tlm_lock;
 using user::ac_tlm_router;
 
-#define NPROC 2
+#define NPROC 4
 
 int sc_main(int ac, char *av[])
 {
@@ -47,6 +47,10 @@ int sc_main(int ac, char *av[])
  //!  ISA simulator
   mips1 mips1_proc1("mips1_1");
   mips1 mips1_proc2("mips1_2");
+  mips1 mips1_proc3("mips1_3");
+  mips1 mips1_proc4("mips1_4");
+
+
   ac_tlm_mem mem("mem");
   ac_tlm_lock lock("lock");
   ac_tlm_router router("router");
@@ -57,6 +61,8 @@ int sc_main(int ac, char *av[])
 
   mips1_proc1.DM_port(router.target_export1);
   mips1_proc2.DM_port(router.target_export2);
+  mips1_proc3.DM_port(router.target_export3);
+  mips1_proc4.DM_port(router.target_export4);
 
   router.R_port_mem(mem.target_export);
   router.R_port_lock(lock.target_export);
@@ -64,12 +70,17 @@ int sc_main(int ac, char *av[])
   
   mips1_proc1.init(ac, (char**)param[0]);
   mips1_proc2.init(ac, (char**)param[1]);
+  mips1_proc3.init(ac, (char**)param[2]);
+  mips1_proc4.init(ac, (char**)param[3]);
 
   cerr << endl;
 
   sc_start();
 
   mips1_proc1.PrintStat();
+  mips1_proc2.PrintStat();
+  mips1_proc3.PrintStat();
+  mips1_proc4.PrintStat();
   cerr << endl;
 
 #ifdef AC_STATS

@@ -59,6 +59,8 @@ public:
   /// Exposed port with ArchC interface
   sc_export< ac_tlm_transport_if > target_export1;
   sc_export< ac_tlm_transport_if > target_export2;
+  sc_export< ac_tlm_transport_if > target_export3;
+  sc_export< ac_tlm_transport_if > target_export4;
 
   ac_tlm_port R_port_mem;
   ac_tlm_port R_port_lock;

@@ -36,12 +36,16 @@ ac_tlm_router::ac_tlm_router( sc_module_name module_name ) :
   sc_module( module_name ),
   target_export1("iport1"),
   target_export2("iport2"),
+  target_export3("iport3"),
+  target_export4("iport4"),
   R_port_mem("R_port_mem", 5242880U),
   R_port_lock("R_port_lock", 32U)
 {
     /// Binds target_export to the router
     target_export1( *this );
     target_export2( *this );
+    target_export3( *this );
+    target_export4( *this );
 
 }
 
