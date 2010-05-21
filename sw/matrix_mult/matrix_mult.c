@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define A 100
+#define A 150
 
 #define GLOBAL_LOCK 0x500000
 #define AcquireGlobalLock while(*g_lock)
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
   ReleaseLocalLock(&lock1);
 
   /* Proc0 prints result */
-  if (proc_id == 0)
+  /*if (proc_id == 0)
   {
     for (i=0; i < A; i++)
     {
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
       }
       printf("\n");
     }
-  }
+  }*/
   
   exit(0); // To avoid cross-compiler exit routine
   return 0; // Never executed, just for compatibility

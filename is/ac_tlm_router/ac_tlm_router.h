@@ -61,6 +61,10 @@ public:
   sc_export< ac_tlm_transport_if > target_export2;
   sc_export< ac_tlm_transport_if > target_export3;
   sc_export< ac_tlm_transport_if > target_export4;
+  sc_export< ac_tlm_transport_if > target_export5;
+  sc_export< ac_tlm_transport_if > target_export6;
+  sc_export< ac_tlm_transport_if > target_export7;
+  sc_export< ac_tlm_transport_if > target_export8;
 
   ac_tlm_port R_port_mem;
   ac_tlm_port R_port_lock;

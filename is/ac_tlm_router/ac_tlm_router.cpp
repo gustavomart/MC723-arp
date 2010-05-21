@@ -38,6 +38,10 @@ ac_tlm_router::ac_tlm_router( sc_module_name module_name ) :
   target_export2("iport2"),
   target_export3("iport3"),
   target_export4("iport4"),
+  target_export5("iport5"),
+  target_export6("iport6"),
+  target_export7("iport7"),
+  target_export8("iport8"),
   R_port_mem("R_port_mem", 5242880U),
   R_port_lock("R_port_lock", 32U)
 {
@@ -46,6 +50,10 @@ ac_tlm_router::ac_tlm_router( sc_module_name module_name ) :
     target_export2( *this );
     target_export3( *this );
     target_export4( *this );
+    target_export5( *this );
+    target_export6( *this );
+    target_export7( *this );
+    target_export8( *this );
 
 }
 

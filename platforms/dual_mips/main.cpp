@@ -29,7 +29,7 @@ using user::ac_tlm_mem;
 using user::ac_tlm_lock;
 using user::ac_tlm_router;
 
-#define NPROC 4
+#define NPROC 8
 
 int sc_main(int ac, char *av[])
 {
@@ -49,7 +49,10 @@ int sc_main(int ac, char *av[])
   mips1 mips1_proc2("mips1_2");
   mips1 mips1_proc3("mips1_3");
   mips1 mips1_proc4("mips1_4");
-
+  mips1 mips1_proc5("mips1_5");
+  mips1 mips1_proc6("mips1_6");
+  mips1 mips1_proc7("mips1_7");
+  mips1 mips1_proc8("mips1_8");
 
   ac_tlm_mem mem("mem");
   ac_tlm_lock lock("lock");
@@ -63,6 +66,10 @@ int sc_main(int ac, char *av[])
   mips1_proc2.DM_port(router.target_export2);
   mips1_proc3.DM_port(router.target_export3);
   mips1_proc4.DM_port(router.target_export4);
+  mips1_proc5.DM_port(router.target_export5);
+  mips1_proc6.DM_port(router.target_export6);
+  mips1_proc7.DM_port(router.target_export7);
+  mips1_proc8.DM_port(router.target_export8);
 
   router.R_port_mem(mem.target_export);
   router.R_port_lock(lock.target_export);
@@ -72,6 +79,10 @@ int sc_main(int ac, char *av[])
   mips1_proc2.init(ac, (char**)param[1]);
   mips1_proc3.init(ac, (char**)param[2]);
   mips1_proc4.init(ac, (char**)param[3]);
+  mips1_proc5.init(ac, (char**)param[4]);
+  mips1_proc6.init(ac, (char**)param[5]);
+  mips1_proc7.init(ac, (char**)param[6]);
+  mips1_proc8.init(ac, (char**)param[7]);
 
   cerr << endl;
 
@@ -81,6 +92,11 @@ int sc_main(int ac, char *av[])
   mips1_proc2.PrintStat();
   mips1_proc3.PrintStat();
   mips1_proc4.PrintStat();
+  mips1_proc5.PrintStat();
+  mips1_proc6.PrintStat();
+  mips1_proc7.PrintStat();
+  mips1_proc8.PrintStat();
+
   cerr << endl;
 
 #ifdef AC_STATS
